@@ -3,7 +3,7 @@ const chatSchema = new mongoose.Schema(
   {
     name: {
       type: Schema.Types.ObjectId,
-      ref: "userModel",
+      ref: "UserModel",
     },
     isGroupChat: {
       type: Boolean,
@@ -11,12 +11,12 @@ const chatSchema = new mongoose.Schema(
     },
     lastMessage: {
         type: Schema.Types.ObjectId,
-        ref: "ChatMessage",
+        ref: "MessageModel",
       },
       participants: [
         {
           type: Schema.Types.ObjectId,
-          ref: "User",
+          ref: "UserModel",
         },
       ],
   },

@@ -2,7 +2,9 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
 const healthRoute = require('./routes/appRoute.js');
-const { connectDb } = require('./Db/Db.js');
+const { connectDb } = require('./db/Db.js');
+const { userRouter } = require('./routes/UserRoutes/UserRoutes.js');
+const { adminRouter } = require('./routes/AdminRoutes/AdminRoutes.js');
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(bodyParser.json());
@@ -17,7 +19,11 @@ app.use('/', (req, res, next) => {
 });
 
 //test route
-app.use('/api/test', healthRoute);
+app.use('/api/v1/test', healthRoute);
+
+//user routes
+app.use('/api/v1',userRouter);
+app.use('/api/v1',adminRouter);
 
 //unknown routes
 app.all('*', (req, res, next) => {

@@ -1,0 +1,40 @@
+const { UserModel } = require("../../models/UserModel/UserModel");
+
+const getAllUsersService = async(res)=>{
+    const users = await UserModel.find();
+    if(!users){
+        return res.status(404).json({
+            success: false,
+            message: "No users found"
+        });
+    }
+    return res.status(200).json({
+        success: true,
+        users
+    });
+};
+
+const updateUserRoleService = async(_id,role,res)=>{
+    const user = await UserModel.findById(_id);
+    if(!user){
+        return res.status(404).json({
+            success: false,
+            message: "No user found"
+        });
+    }
+    const updatedUser = await UserModel.findByIdAndUpdate(_id,{role},{new:true});
+    if(!updatedUser){
+        return res.status(404).json({
+            success: false,
+            message: "User role not changed"
+        });
+    }
+    return res.status(200).json({
+        success: true,
+        updatedUser
+    });
+}
+module.exports ={
+    getAllUsersService,
+    updateUserRoleService
+}

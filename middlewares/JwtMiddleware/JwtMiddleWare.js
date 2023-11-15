@@ -38,5 +38,7 @@ const setToken = (user,statusCode,res)=>{
     });
 }
 module.exports = {
-    setToken
+    setToken,
+    accessTokenOptions,
+    refreshTokenOptions
 }

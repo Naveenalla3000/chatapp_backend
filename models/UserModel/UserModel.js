@@ -38,7 +38,7 @@ const userSchema = new mongoose.Schema(
       {
         chatId: {
           type: mongoose.Schema.Types.ObjectId,
-          ref: "Chat",
+          ref: "ChatModel",
         },
       },
     ],
@@ -58,7 +58,8 @@ userSchema.pre("save", async function (next) {
 });
 
 userSchema.methods.comparePassword = async function (enteredPassword) {
-  return await bcrypt.compare(enteredPassword, this.password);
+  const user = this;
+  return await bcrypt.compare(enteredPassword, user.password);
 };
 
 const UserModel = mongoose.model("UserModel", userSchema);
