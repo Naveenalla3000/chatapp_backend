@@ -5,7 +5,7 @@ const { authorizeRoles } = require('../../middlewares/AuthMiddleware/AuthAdminMi
 const { getAllUsers } = require('../../controllers/AdminController/AdminController');
 const adminRouter = express.Router();
 
-adminRouter.get('/get-users',updateAccessToken,isAutheticated,authorizeRoles('admin'),getAllUsers);
+adminRouter.get('/get-users',updateAccessToken,isAutheticated,authorizeRoles('ADMIN'),getAllUsers);
 
 module.exports = {
     adminRouter
