@@ -43,6 +43,9 @@ app.use("/api/v1/test", Approuter);
 //user routers
 app.use("/api/v1/user", userRouter);
 
+//admin routes
+app.use("/api/v1/admin", adminRouter);
+
 //unknown routes
 app.all("*", unknownRotes);
 

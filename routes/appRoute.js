@@ -28,9 +28,9 @@ Approuter.get(
   CatchAsyncError(async (req, res) => {
     try {
       const response = {
+        success: true,
         message: "health ok",
         timestamp: dateFns.format(new Date(), "dd/MMMM/y hh:mm:ss"),
-        success: true,
       };
       res.status(200).json(response);
     } catch (error) {
