@@ -15,6 +15,7 @@ const jwt = require("jsonwebtoken");
 const {
   getUserByIdService,
 } = require("../../services/UserServices/UserServices");
+const axios = require("axios");
 
 const registerNewUser = CatchAsyncError(async (req, res, next) => {
   try {
@@ -43,9 +44,16 @@ const registerNewUser = CatchAsyncError(async (req, res, next) => {
 
 const loginUser = CatchAsyncError(async (req, res, next) => {
   try {
-    const { email, password } = req.body;
+    const { email, password,recaptchValue } = req.body;
     if (!email || !password) {
       return next(new ErrorHandler("Please Enter All Fields", 400));
+    }
+    const resData = await axios({
+      method: "POST",
+      url: `https://www.google.com/recaptcha/api/siteverify?secret=${process.env.EXPRESS_GOOGLE_RECAPTCHA_SECRET}&response=${recaptchValue}`,
+    });
+    if(!resData?.data?.success){
+      return next(new ErrorHandler("Invalid Captcha", 400));
     }
     const user = await UserModel.findOne({ email });
     if (!user) {
