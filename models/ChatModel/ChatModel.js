@@ -19,6 +19,10 @@ const chatSchema = new mongoose.Schema(
           ref: "UserModel",
         },
       ],
+      admin: {
+        type: Schema.Types.ObjectId,
+        ref: "UserModel",
+      },
   },
   { timestamps: true }
 );

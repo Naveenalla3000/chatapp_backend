@@ -43,7 +43,7 @@ const setToken = (user, statusCode, res) => {
   res.status(statusCode).json({
     success: true,
     user,
-    accessToken,
+    access_token:accessToken,
   });
 };
 module.exports = {

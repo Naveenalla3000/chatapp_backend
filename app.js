@@ -21,7 +21,7 @@ const server = http.createServer(app);
 const io = socketio(server, {
   pingTimeout: parseInt(process.env.EXPRESS_PING_TIMEOUT) || 6000,
   cors: {
-    origin: process.env.EXPRESS_CLIENT_URL,
+    origin: process.env.EXPRESS_CORS_ORIGIN,
     methods: ["*"],
     credentials: true,
   },
@@ -30,6 +30,7 @@ app.set("io", io);
 app.use(
   cors({
     origin: process.env.EXPRESS_CORS_ORIGIN,
+    methods: ["*"],
     credentials: true,
   })
 );
