@@ -59,16 +59,16 @@ const initializeSocketIO = (io) => {
         token = socket.handshake.auth?.access_token;
       }
       if (!token) {
-        return new ErrorHandler("Un-Authoried handshake. Token is misssing", 401);
+        throw new Error("Un-Authoried handshake. Token is misssing", 401);
       }
       const decoded = jwt.verify(token, process.env.EXPRESS_ACCESS_TOKEN.toString());
       if (!decoded) {
-        return new ErrorHandler("Un-Authoried handshake. Token is invalid", 401);
+        throw new Error("Un-Authoried handshake. Token is invalid", 401);
       }
-      const userId = decoded._id;
+      const userId = decoded?._id;
       const user = await UserModel.findById(userId).select("-password");
       if (!user) {
-        return new ErrorHandler("Un-Authoried handshake. User not found", 401);
+        throw new Error("Un-Authoried handshake. User is invalid", 401);
       }
       socket.user = user; // mount te user object to the socket
       // We are creating a room with user id so that if user is joined but does not have any active chat going on.
@@ -76,7 +76,7 @@ const initializeSocketIO = (io) => {
        // so that the client can catch the event and show the notifications.
       socket.join(user._id.toString());
       socket.emit(ChatEventEnum.CONNECTED_EVENT);  // emit the connected event so that client is aware
-      console.log("User connected 🔗. userId: ", user._id.toString());
+      console.log("User connected 🗼 userId: ", user._id.toString());
       console.log(
         `--------------------------------------------------------------------------------------------\n`
       );
@@ -96,7 +96,10 @@ const initializeSocketIO = (io) => {
         }
       });
     } catch (error) {
-      console.log(error);
+      console.log("<< Socket "+error.message+" >>");
+      console.log(
+        `--------------------------------------------------------------------------------------------\n`
+      );
       socket.emit(
         ChatEventEnum.SOCKET_ERROR_EVENT,
         error.message ? error.message : "Something went wrong"

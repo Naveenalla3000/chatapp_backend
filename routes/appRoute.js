@@ -12,7 +12,7 @@ const loggerRoute = CatchAsyncError(async (req, res, next) => {
     const reqMethod = req.method;
     const reqTime = dateFns.format(new Date(), "dd/MMMM/y hh:mm:ss");
     console.log(
-      `<< REQUEST PATH ${reqPath}  REQUEST METHOD " ${reqMethod}" REQUEST TIME " ${reqTime} >>`
+      `<< REQUEST PATH  🛤️   ${reqPath}  REQUEST METHOD  🛠️   ${reqMethod} REQUEST TIME   🕰️  ${reqTime} >>`
     );
     console.log(
       `--------------------------------------------------------------------------------------------\n`

@@ -5,12 +5,12 @@ const http = require("http");
 const app = express();
 const { loggerRoute, Approuter, unknownRotes } = require("./routes/AppRoute");
 const { userRouter } = require("./routes/UserRoutes/UserRoutes.js");
-const { adminRouter } = require("./routes/AdminRoutes/AdminRoutes.js");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const socketio = require("socket.io");
 const { initializeSocketIO } = require("./socket/Socket.js");
 const { ErrorMiddleware } = require("./middlewares/ErrorMiddleWare/Error.js");
+const { chatRouter } = require("./routes/ChatRoutes/ChatRouter.js");
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -44,8 +44,8 @@ app.use("/api/v1/test", Approuter);
 //user routers
 app.use("/api/v1/user", userRouter);
 
-//admin routes
-app.use("/api/v1/admin", adminRouter);
+//chat routes
+app.use("/api/v1/chat", chatRouter);
 
 //unknown routes
 app.all("*", unknownRotes);
@@ -53,6 +53,7 @@ app.all("*", unknownRotes);
 // ErrorHandler
 app.use(ErrorMiddleware);
 
+//socket Initializing
 initializeSocketIO(io);
 
 module.exports = { server };

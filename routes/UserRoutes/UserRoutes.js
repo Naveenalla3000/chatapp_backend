@@ -18,7 +18,12 @@ userRouter.post("/login", loginUser);
 userRouter.get("/logout", updateAccessToken, isAutheticated, logoutUser);
 userRouter.get("/refresh", updateAccessTokenForRefresh);
 userRouter.get("/me", updateAccessToken, isAutheticated, getUserInfo);
-userRouter.post("/update-password", updateAccessToken, isAutheticated, updatePassword);
+userRouter.post(
+  "/update-password",
+  updateAccessToken,
+  isAutheticated,
+  updatePassword
+);
 
 module.exports = {
   userRouter,

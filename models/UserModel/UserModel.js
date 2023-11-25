@@ -1,10 +1,7 @@
 require("dotenv").config();
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
-const {
-  UserRolesEnum,
-  AvailableUserRoles,
-} = require("../../constants/Constants");
+const { UserRolesEnum } = require("../../constants/Constants");
 
 const emailRegexPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -40,11 +37,25 @@ const userSchema = new mongoose.Schema(
       default: UserRolesEnum.USER,
       required: [true, "User Role must be provide"],
     },
-    chat: [
+    chatId: {
+      type: String,
+    },
+    helperId: {
+      type: String,
+    },
+    helperName: {
+      type: String,
+    },
+    lastMessageContent: {
+      type: String,
+    },
+    onlineStatus: {
+      type: String,
+    },
+    chats: [
       {
-        chatId: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "ChatModel",
+        userId: {
+          type: String,
         },
       },
     ],
@@ -54,7 +65,7 @@ const userSchema = new mongoose.Schema(
 
 userSchema.pre("save", async function (next) {
   const user = this;
-  if (user.isModified("password")) {
+  if (user.isModified("password") && user.password) {
     user.password = await bcrypt.hash(
       user.password,
       parseInt(process.env.EXPRESS_SALT_ROUNDS)

@@ -2,6 +2,7 @@ const { UserModel } = require("../../models/UserModel/UserModel");
 
 const getAllUsersService = async(res)=>{
     const users = await UserModel.find().select("-password");
+
     if(!users){
         return res.status(404).json({
             success: false,
