@@ -23,13 +23,15 @@ chatRouter.get(
   authorizeRoles("HELPER", "ADMIN"),
   getAllAssignedChats
 );
-chatRouter.get(
+
+chatRouter.post(
   "/get-chat",
   updateAccessToken,
   isAutheticated,
   authorizeRoles("HELPER", "ADMIN"),
   getASpecificChat
 );
+
 chatRouter.post(
   "/send-message",
   updateAccessToken,

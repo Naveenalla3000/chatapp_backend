@@ -38,8 +38,8 @@ const ChatEventEnum = Object.freeze({
 const AvailableChatEvents = Object.values(ChatEventEnum);
 
 module.exports = {
-    UserRolesEnum,
-    AvailableUserRoles,
-    ChatEventEnum,
-    AvailableChatEvents
+  UserRolesEnum,
+  AvailableUserRoles,
+  ChatEventEnum,
+  AvailableChatEvents,
 };

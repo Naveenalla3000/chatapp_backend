@@ -1,7 +1,6 @@
-require('dotenv').config();
+require("dotenv").config();
 const cookie = require("cookie");
 const jwt = require("jsonwebtoken");
-const { ErrorHandler } = require("../middlewares/ErrorMiddleWare/ErrorHandler");
 const { UserModel } = require("../models/UserModel/UserModel");
 const {
   ChatEventEnum,
@@ -61,7 +60,10 @@ const initializeSocketIO = (io) => {
       if (!token) {
         throw new Error("Un-Authoried handshake. Token is misssing", 401);
       }
-      const decoded = jwt.verify(token, process.env.EXPRESS_ACCESS_TOKEN.toString());
+      const decoded = jwt.verify(
+        token,
+        process.env.EXPRESS_ACCESS_TOKEN.toString()
+      );
       if (!decoded) {
         throw new Error("Un-Authoried handshake. Token is invalid", 401);
       }
@@ -72,10 +74,10 @@ const initializeSocketIO = (io) => {
       }
       socket.user = user; // mount te user object to the socket
       // We are creating a room with user id so that if user is joined but does not have any active chat going on.
-       // still we want to emit some socket events to the user.
-       // so that the client can catch the event and show the notifications.
+      // still we want to emit some socket events to the user.
+      // so that the client can catch the event and show the notifications.
       socket.join(user._id.toString());
-      socket.emit(ChatEventEnum.CONNECTED_EVENT);  // emit the connected event so that client is aware
+      socket.emit(ChatEventEnum.CONNECTED_EVENT); // emit the connected event so that client is aware
       console.log("User connected 🗼 userId: ", user._id.toString());
       console.log(
         `--------------------------------------------------------------------------------------------\n`
@@ -87,7 +89,9 @@ const initializeSocketIO = (io) => {
       mountParticipantStoppedTypingEvent(socket);
 
       socket.on(ChatEventEnum.DISCONNECT_EVENT, () => {
-        console.log("<< user has disconnected 🚫. userId: " + socket.user?._id+" >>");
+        console.log(
+          "<< user has disconnected 🚫. userId: " + socket.user?._id + " >>"
+        );
         console.log(
           `--------------------------------------------------------------------------------------------\n`
         );
@@ -96,7 +100,7 @@ const initializeSocketIO = (io) => {
         }
       });
     } catch (error) {
-      console.log("<< Socket "+error.message+" >>");
+      console.log("<< Socket " + error.message + " >>");
       console.log(
         `--------------------------------------------------------------------------------------------\n`
       );
@@ -118,7 +122,7 @@ const initializeSocketIO = (io) => {
  */
 
 const emitSocketEvent = (req, roomId, event, payload) => {
-    req.app.get("io").in(roomId).emit(event, payload);
+  req.app.get("io").in(roomId).emit(event, payload);
 };
 
 module.exports = { initializeSocketIO, emitSocketEvent };

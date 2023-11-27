@@ -8,6 +8,7 @@ const {
 const { ChatModel } = require("../../models/ChatModel/ChatModel");
 const { UserModel } = require("../../models/UserModel/UserModel");
 const { MessageModel } = require("../../models/ChatModel/MessageModel");
+const { UserRolesEnum } = require("../../constants/Constants");
 
 const getAllAssignedChats = CatchAsyncError(async (req, res, next) => {
   try {
@@ -131,6 +132,9 @@ const updateChat = CatchAsyncError(async (req, res, next) => {
       const sendingUser = await UserModel.findById(senderId);
       if (!sendingUser) {
         return next(new ErrorHandler("No user found", 404));
+      }
+      if (sendingUser.role === UserRolesEnum.USER) {
+        return next(new ErrorHandler("You are not allowed to update chat", 400));
       }
       const chats = await UserModel.findById(senderId).select("chats");
       if (!chats) {

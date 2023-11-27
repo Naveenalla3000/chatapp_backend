@@ -11,6 +11,7 @@ const socketio = require("socket.io");
 const { initializeSocketIO } = require("./socket/Socket.js");
 const { ErrorMiddleware } = require("./middlewares/ErrorMiddleWare/Error.js");
 const { chatRouter } = require("./routes/ChatRoutes/ChatRouter.js");
+const { adminRouter } = require("./routes/AdminRoutes/AdminRoutes.js");
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -46,6 +47,9 @@ app.use("/api/v1/user", userRouter);
 
 //chat routes
 app.use("/api/v1/chat", chatRouter);
+
+//admin routes
+app.use("/api/v1/admin", adminRouter);
 
 //unknown routes
 app.all("*", unknownRotes);
