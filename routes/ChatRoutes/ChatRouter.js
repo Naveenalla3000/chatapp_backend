@@ -20,7 +20,7 @@ chatRouter.get(
   "/get-users",
   updateAccessToken,
   isAutheticated,
-  authorizeRoles("HELPER", "ADMIN"),
+  authorizeRoles("HELPER", "ADMIN","USER"),
   getAllAssignedChats
 );
 
@@ -28,7 +28,7 @@ chatRouter.post(
   "/get-chat",
   updateAccessToken,
   isAutheticated,
-  authorizeRoles("HELPER", "ADMIN"),
+  authorizeRoles("HELPER", "ADMIN","USER"),
   getASpecificChat
 );
 

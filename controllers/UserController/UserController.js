@@ -19,6 +19,7 @@ const {
 const axios = require("axios");
 const { ChatModel } = require("../../models/ChatModel/ChatModel");
 const { MessageModel } = require("../../models/ChatModel/MessageModel");
+const { UserRolesEnum } = require("../../constants/Constants");
 
 const registerNewUser = CatchAsyncError(async (req, res, next) => {
   try {
@@ -57,6 +58,7 @@ const registerNewUser = CatchAsyncError(async (req, res, next) => {
       email,
       password,
       chatId: chat._id,
+      chats: [{ userId: chat._id }],
     });
 
     // Check if admin exists, create if not
@@ -68,7 +70,7 @@ const registerNewUser = CatchAsyncError(async (req, res, next) => {
         name: process.env.EXPRESS_ADMIN_NAME.toString(),
         email: process.env.EXPRESS_ADMIN_EMAIL.toString(),
         password: process.env.EXPRESS_ADMIN_PASSWORD.toString(),
-        role: "ADMIN",
+        role: UserRolesEnum.ADMIN,
       });
     }
 

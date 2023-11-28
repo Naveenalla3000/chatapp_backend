@@ -62,12 +62,15 @@ const changeHelper = CatchAsyncError(async (req, res, next) => {
     const admin = await UserModel.findOne({
       email: process.env.EXPRESS_ADMIN_EMAIL.toString(),
     }).select("-password");
+
     if (
       previousHelperId &&
       previousHelperId.toString() !== admin._id.toString()
     ) {
       previousHelper.chats = previousHelper.chats.filter(
-        (chat) => chat.userId.toString() !== user._id.toString()
+        (chat) =>
+          chat.userId.toString() !== user._id.toString() ||
+          chat.userId.toString() === previousHelperId.toString()
       );
       await previousHelper.save();
     }
@@ -138,20 +141,26 @@ const changeRole = CatchAsyncError(async (req, res, next) => {
         return next(new ErrorHandler("User is not a user", 400));
       }
       const previousHelperId = user.helperId;
-      const previousHelper = await UserModel.findById(previousHelperId).select('-password');
-      if (previousHelperId && previousHelperId.toString() !== admin._id.toString()) {
+      const previousHelper = await UserModel.findById(previousHelperId).select(
+        "-password"
+      );
+      if (
+        previousHelperId &&
+        previousHelperId.toString() !== admin._id.toString()
+      ) {
         previousHelper.chats = previousHelper.chats.filter(
-          (chat) => chat.userId.toString() !== user._id.toString()
+          (chat) =>
+            chat.userId.toString() !== user._id.toString() ||
+            chat.userId.toString() === previousHelperId.toString()
         );
         await previousHelper.save();
-      } 
+      }
       const updatedUser = await UserModel.findByIdAndUpdate(
         userId,
         {
           role: UserRolesEnum.HELPER,
           helperId: admin._id,
           helperName: admin.name,
-          chats: [],
         },
         { new: true }
       );
@@ -171,9 +180,13 @@ const changeRole = CatchAsyncError(async (req, res, next) => {
 
       const chats = await UserModel.findById(userId).select("chats");
       const assignedChats = chats.chats;
-      const allChatIdsORAllUserIds = assignedChats.map((chat) => chat.userId);
 
-      // If assignedChats are empty
+      //allUserIdsExcept_UserId=>(himself)
+      const allChatIdsORAllUserIds = assignedChats
+        .filter((chat) => chat.userId && chat.userId !== userId)
+        .map((chat) => chat.userId);
+
+      // If assignedChats have only himself
       if (allChatIdsORAllUserIds.length === 0) {
         const updatedUser = await UserModel.findByIdAndUpdate(
           userId,
@@ -181,7 +194,6 @@ const changeRole = CatchAsyncError(async (req, res, next) => {
             role: UserRolesEnum.USER,
             helperId: admin._id,
             helperName: admin.name,
-            chats: [],
           },
           { new: true }
         );
@@ -192,7 +204,7 @@ const changeRole = CatchAsyncError(async (req, res, next) => {
           user: updatedUser,
         });
       } else {
-        // If assignedChats are not empty
+        // If assignedChats are not empty and     contains himself and other
         const alreadyAssignedUsers = await UserModel.find({
           _id: { $in: allChatIdsORAllUserIds },
         });
@@ -210,7 +222,7 @@ const changeRole = CatchAsyncError(async (req, res, next) => {
           { new: true }
         );
 
-        const updatedUser = await UserModel.findByIdAndUpdate(
+        await UserModel.findByIdAndUpdate(
           userId,
           {
             role: UserRolesEnum.USER,
@@ -221,10 +233,33 @@ const changeRole = CatchAsyncError(async (req, res, next) => {
           { new: true }
         );
 
+        // const updatedUserChats = await UserModel.findById(userId).select(
+        //   "chats"
+        // );
+        //const updatedAssignedChats = updatedUserChats.chats;
+        //const allUpdatedChatIds = updatedAssignedChats.map(
+        //  (chat) => chat.userId
+        //);
+        //if (
+        //  !allUpdatedChatIds.includes(userId) ||
+        // allUpdatedChatIds.length === 0
+        //) {
+        const updateUser = await UserModel.findByIdAndUpdate(
+          userId,
+          {
+            $push: { chats: { userId } },
+          },
+          { new: true }
+        );
+
+        if (!updateUser) {
+          return next(new ErrorHandler("Updated User not found", 404));
+        }
+
         return res.status(200).json({
           success: true,
           message: "Helper updated to user successfully",
-          user: updatedUser,
+          user: updateUser,
         });
       }
     }
@@ -248,7 +283,7 @@ const getAllHelpers = CatchAsyncError(async (req, res, next) => {
     const helpersWithNoOfAssignedUsers = helpers.map((helper) => ({
       _id: helper._id,
       name: helper.name,
-      noOfAssignedUsers: helper.chats ? helper.chats.length : 0,
+      noOfAssignedUsers: helper.chats ? helper.chats.length - 1 : 0,
     }));
 
     res.status(200).json({
@@ -282,7 +317,9 @@ const getHelperInfo = CatchAsyncError(async (req, res, next) => {
     }
     const chats = await UserModel.findById(helperId).select("chats");
     const assignedChats = chats.chats;
-    const allChatIdsORAllUserIds = assignedChats.map((chat) => chat.userId);
+    const allChatIdsORAllUserIds = assignedChats
+      .filter((chat) => chat.userId && chat.userId !== helperId)
+      .map((chat) => chat.userId);
     if (allChatIdsORAllUserIds.length === 0) {
       // return res.status(200).json({
       //   success: true,
