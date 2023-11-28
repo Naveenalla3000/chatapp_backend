@@ -30,4 +30,4 @@ git push origin "%branch%"
 timeout /t 3 >nul
 
 cls
-echo Commit done Successfully!
+echo Commit done Successfully! 🚀 
