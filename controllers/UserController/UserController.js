@@ -33,10 +33,25 @@ const registerNewUser = CatchAsyncError(async (req, res, next) => {
       return next(new ErrorHandler("Email Already Exists", 400));
     }
 
+    let admin = await UserModel.findOne({
+      email: process.env.EXPRESS_ADMIN_EMAIL.toString(),
+    }).select("-password");
+    if (!admin) {
+      admin = await UserModel.create({
+        name: process.env.EXPRESS_ADMIN_NAME.toString(),
+        email: process.env.EXPRESS_ADMIN_EMAIL.toString(),
+        password: process.env.EXPRESS_ADMIN_PASSWORD.toString(),
+        role: UserRolesEnum.ADMIN,
+      });
+    }
+    if (!admin) {
+      return next(new ErrorHandler("Unable to create admin", 400));
+    }
+    
     // Creating a welcome message
     const content = `Welcome, ${name}`;
     const message = await MessageModel.create({
-      sender: "ADMIN",
+      sender: admin._id,
       content,
     });
     if (!message) {
@@ -62,17 +77,17 @@ const registerNewUser = CatchAsyncError(async (req, res, next) => {
     });
 
     // Check if admin exists, create if not
-    let admin = await UserModel.findOne({
-      email: process.env.EXPRESS_ADMIN_EMAIL.toString(),
-    }).select("-password");
-    if (!admin) {
-      admin = await UserModel.create({
-        name: process.env.EXPRESS_ADMIN_NAME.toString(),
-        email: process.env.EXPRESS_ADMIN_EMAIL.toString(),
-        password: process.env.EXPRESS_ADMIN_PASSWORD.toString(),
-        role: UserRolesEnum.ADMIN,
-      });
-    }
+    // let admin = await UserModel.findOne({
+    //   email: process.env.EXPRESS_ADMIN_EMAIL.toString(),
+    // }).select("-password");
+    // if (!admin) {
+    //   admin = await UserModel.create({
+    //     name: process.env.EXPRESS_ADMIN_NAME.toString(),
+    //     email: process.env.EXPRESS_ADMIN_EMAIL.toString(),
+    //     password: process.env.EXPRESS_ADMIN_PASSWORD.toString(),
+    //     role: UserRolesEnum.ADMIN,
+    //   });
+    // }
 
     // Update admin and user information and save
     admin.chats.push({ userId: chat._id });

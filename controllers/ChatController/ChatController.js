@@ -46,7 +46,7 @@ const getAllAssignedChats = CatchAsyncError(async (req, res, next) => {
 const getASpecificChat = CatchAsyncError(async (req, res, next) => {
   try {
     const reqId = req.user._id.toString();
-    const { chatId } = req.body;
+    const { chatId } = req.params;
     if (!chatId) {
       return next(new ErrorHandler("Please Enter All Fields", 400));
     }
@@ -134,7 +134,9 @@ const updateChat = CatchAsyncError(async (req, res, next) => {
         return next(new ErrorHandler("No user found", 404));
       }
       if (sendingUser.role === UserRolesEnum.USER) {
-        return next(new ErrorHandler("You are not allowed to update chat", 400));
+        return next(
+          new ErrorHandler("You are not allowed to update chat", 400)
+        );
       }
       const chats = await UserModel.findById(senderId).select("chats");
       if (!chats) {
@@ -180,8 +182,45 @@ const updateChat = CatchAsyncError(async (req, res, next) => {
   }
 });
 
+const getLastMessageOfUser = CatchAsyncError(async (req, res, next) => {
+  try {
+    const { chatId } = req.params;
+    if (!chatId) {
+      return next(new ErrorHandler("Please Enter All Fields", 400));
+    }
+    if (!mongoose.Types.ObjectId.isValid(chatId)) {
+      return next(new ErrorHandler("Invalid Chat Id", 400));
+    }
+    const reqId = req.user._id.toString();
+    const chats = await UserModel.findById(reqId).select("chats");
+    if (!chats) {
+      return next(new ErrorHandler("No chats found", 404));
+    }
+    const assignedChats = chats.chats;
+    if (!assignedChats) {
+      return next(new ErrorHandler("No assigned chats found", 404));
+    }
+    const allChatIdsORAllUserIds = assignedChats.map((chat) => chat.userId);
+    if (!allChatIdsORAllUserIds) {
+      return next(new ErrorHandler("No chats found", 404));
+    }
+    if (!allChatIdsORAllUserIds.includes(chatId)) {
+      return next(new ErrorHandler("You are not assigned to this chat", 400));
+    }
+    const user = await UserModel.findById(chatId);
+    const lastMessage = user.lastMessageContent;
+    res.status(200).json({
+      success: true,
+      lastMessage,
+    });
+  } catch (error) {
+    console.log(error);
+  }
+});
+
 module.exports = {
   getAllAssignedChats,
   getASpecificChat,
   updateChat,
+  getLastMessageOfUser,
 };

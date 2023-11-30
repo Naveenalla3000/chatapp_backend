@@ -299,7 +299,7 @@ const getAllHelpers = CatchAsyncError(async (req, res, next) => {
 
 const getHelperInfo = CatchAsyncError(async (req, res, next) => {
   try {
-    const { helperId } = req.body;
+    const { helperId } = req.params;
     if (!helperId) {
       return next(new ErrorHandler("Please enter all fields", 400));
     }

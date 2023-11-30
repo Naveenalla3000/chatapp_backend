@@ -40,8 +40,8 @@ adminRouter.post(
   changeRole
 );
 
-adminRouter.post(
-  "/get-helperInfo",
+adminRouter.get(
+  "/get-helperInfo/:helperId",
   updateAccessToken,
   isAutheticated,
   authorizeRoles("ADMIN"),

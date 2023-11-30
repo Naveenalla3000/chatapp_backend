@@ -115,14 +115,14 @@ const initializeSocketIO = (io) => {
 /**
  *
  * @param {import("express").Request} req - Request object to access the `io` instance set at the entry point
- * @param {string} roomId - Room where the event should be emitted
+ * @param {string} chatId - Chat where the event should be emitted
  * @param {AvailableChatEvents[0]} event - Event that should be emitted
  * @param {any} payload - Data that should be sent when emitting the event
  * @description Utility function responsible to abstract the logic of socket emission via the io instance
  */
 
-const emitSocketEvent = (req, roomId, event, payload) => {
-  req.app.get("io").in(roomId).emit(event, payload);
+const emitSocketEvent = (req, chatId, event, payload) => {
+  req.app.get("io").in(chatId).emit(event, payload);
 };
 
 module.exports = { initializeSocketIO, emitSocketEvent };

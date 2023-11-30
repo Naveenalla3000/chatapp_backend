@@ -1,22 +1,25 @@
 @echo off
 
-echo Enter the commit message:
-set /p msg=""
+set /p msg="Enter the commit message: "
+if "%msg%"=="" (
+    echo No commit message entered. Terminating.
+    exit /b 1
+)
+
 timeout /t 3 >nul
 
-echo git branches are:
+echo Git branches:
 git branch
 timeout /t 3 >nul
 
-echo Enter the branch: 
-set /p branch=""
+set /p branch="Enter the branch: "
 timeout /t 3 >nul
 
 git show-ref --verify --quiet "refs/heads/%branch%" >nul 2>&1
 if %errorlevel% equ 0 (
-  git checkout "%branch%"
+    git checkout "%branch%"
 ) else (
-  git checkout -b "%branch%"
+    git checkout -b "%branch%"
 )
 
 timeout /t 3 >nul
@@ -30,4 +33,4 @@ git push origin "%branch%"
 timeout /t 3 >nul
 
 cls
-echo Commit done Successfully! 🚀 
+echo Commit done Successfully! 🚀
