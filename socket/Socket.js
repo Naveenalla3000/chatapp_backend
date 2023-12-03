@@ -6,6 +6,7 @@ const {
   ChatEventEnum,
   AvailableChatEvents,
 } = require("../constants/Constants");
+const { ErrorHandler } = require("../middlewares/ErrorMiddleWare/ErrorHandler");
 
 /**
  * @description This function is responsible to allow user to join the chat represented by chatId (chatId). event happens when user switches between the chats
@@ -45,6 +46,13 @@ const mountParticipantStoppedTypingEvent = (socket) => {
   });
 };
 
+const userSocketMap = {} // userId : socketId
+
+const getRecipientSocketId = (recipientId)=>{
+  return userSocketMap[recipientId];
+}
+
+
 /**
  *
  * @param {Server<import("socket.io/dist/typed-events").DefaultEventsMap, import("socket.io/dist/typed-events").DefaultEventsMap, import("socket.io/dist/typed-events").DefaultEventsMap, any>} io
@@ -52,11 +60,8 @@ const mountParticipantStoppedTypingEvent = (socket) => {
 const initializeSocketIO = (io) => {
   return io.on("connection", async (socket) => {
     try {
-      const cookies = cookie.parse(socket.handshake.headers?.cookie || "");
+      const cookies = socket.handshake.query;
       let token = cookies?.access_token;
-      if (!token) {
-        token = socket.handshake.auth?.access_token;
-      }
       if (!token) {
         throw new Error("Un-Authoried handshake. Token is misssing", 401);
       }
@@ -64,10 +69,14 @@ const initializeSocketIO = (io) => {
         token,
         process.env.EXPRESS_ACCESS_TOKEN.toString()
       );
+      // console.log("decoded", decoded);
       if (!decoded) {
         throw new Error("Un-Authoried handshake. Token is invalid", 401);
       }
       const userId = decoded?._id;
+      if (!userId) {
+        throw new Error("Un-Authoried handshake. User is invalid", 401);
+      }
       const user = await UserModel.findById(userId).select("-password");
       if (!user) {
         throw new Error("Un-Authoried handshake. User is invalid", 401);
@@ -76,9 +85,18 @@ const initializeSocketIO = (io) => {
       // We are creating a room with user id so that if user is joined but does not have any active chat going on.
       // still we want to emit some socket events to the user.
       // so that the client can catch the event and show the notifications.
+      // console.log(socket);
+
+      // map the userId to the socketId so that we can emit the events to the specific user
+      if(userId && user && userId !== "undefined" && decoded){
+        userSocketMap[userId] = socket.id;
+      }
+      io.emit("getOnlineUsers",Object.keys(userSocketMap));  //[6565122685898c43e332d6f6,6565122585898c43e332d6ee]
+      // console.log("online users hash map "+Object.keys(userSocketMap));
       socket.join(user._id.toString());
+      // console.log(socket);
       socket.emit(ChatEventEnum.CONNECTED_EVENT); // emit the connected event so that client is aware
-      console.log("User connected 🗼 userId: ", user._id.toString());
+      console.log("<< User connected 🗼 userId: ", user._id.toString()+" >>");
       console.log(
         `--------------------------------------------------------------------------------------------\n`
       );
@@ -88,16 +106,19 @@ const initializeSocketIO = (io) => {
       mountParticipantTypingEvent(socket);
       mountParticipantStoppedTypingEvent(socket);
 
+
       socket.on(ChatEventEnum.DISCONNECT_EVENT, () => {
+        const disconnectedUserId = userId.toString();
         console.log(
-          "<< user has disconnected 🚫. userId: " + socket.user?._id + " >>"
+          `<< user has disconnected 🚫 userId: ${disconnectedUserId} >>`
         );
         console.log(
           `--------------------------------------------------------------------------------------------\n`
         );
-        if (socket.user?._id) {
-          socket.leave(socket.user._id);
-        }
+        socket.leave(disconnectedUserId);
+        delete userSocketMap[disconnectedUserId];
+        io.emit("getOnlineUsers",Object.keys(userSocketMap));
+        // console.log("online users hash map at deletion " + Object.keys(userSocketMap));
       });
     } catch (error) {
       console.log("<< Socket " + error.message + " >>");
@@ -125,4 +146,4 @@ const emitSocketEvent = (req, chatId, event, payload) => {
   req.app.get("io").in(chatId).emit(event, payload);
 };
 
-module.exports = { initializeSocketIO, emitSocketEvent };
+module.exports = { initializeSocketIO, emitSocketEvent,getRecipientSocketId };

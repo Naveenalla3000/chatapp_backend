@@ -8,7 +8,11 @@ const {
 const { ChatModel } = require("../../models/ChatModel/ChatModel");
 const { UserModel } = require("../../models/UserModel/UserModel");
 const { MessageModel } = require("../../models/ChatModel/MessageModel");
-const { UserRolesEnum } = require("../../constants/Constants");
+const { UserRolesEnum, ChatEventEnum } = require("../../constants/Constants");
+const {
+  emitSocketEvent,
+  getRecipientSocketId,
+} = require("../../socket/Socket");
 
 const getAllAssignedChats = CatchAsyncError(async (req, res, next) => {
   try {
@@ -120,6 +124,38 @@ const updateChat = CatchAsyncError(async (req, res, next) => {
       await receiver.save();
       chat.messages.push(message._id);
       await chat.save();
+      // emit the socket event
+      const admin = await UserModel.findOne({
+        email: process.env.EXPRESS_ADMIN_EMAIL,
+      });
+
+      const adminId = admin._id.toString();
+      const helperId = receiver.helperId.toString();
+
+      // const helperIdAndAdminIdArray = [adminId,helperId];
+      // if(helperIdAndAdminIdArray[0] === helperIdAndAdminIdArray[1]){
+      //   emitSocketEvent(req,ChatEventEnum.MESSAGE_RECEIVED_EVENT,adminId,message)
+      // }else{
+      //     helperIdAndAdminIdArray.forEach((userId) => {
+      //     emitSocketEvent(req, ChatEventEnum.MESSAGE_RECEIVED_EVENT, userId, message);
+      //     });
+      // }
+      if (helperId !== adminId) {
+        const helperSocketId = getRecipientSocketId(helperId);
+        // console.log("helper socket id", helperSocketId);
+        if (helperSocketId) {
+          emitSocketEvent(req, helperSocketId, "newMessage", message);
+          // console.log("message sent to helper socket id", helperSocketId);
+        }
+      }
+      
+      const adminSocketId = getRecipientSocketId(adminId);
+      if (adminSocketId) {
+        // console.log("admin socket id", adminSocketId);
+        emitSocketEvent(req, adminSocketId, "newMessage", message);
+        // console.log("message sent to admin socket id", adminSocketId);
+      }      
+
       res.status(201).json({
         success: true,
         message: `Chat updated by ${senderId}`,
@@ -127,7 +163,7 @@ const updateChat = CatchAsyncError(async (req, res, next) => {
         message,
       });
 
-      // if someone else {ADMIN || HELPER } updating the chat
+      // if someone else { ADMIN || HELPER } updating the chat
     } else {
       const sendingUser = await UserModel.findById(senderId);
       if (!sendingUser) {
@@ -169,6 +205,38 @@ const updateChat = CatchAsyncError(async (req, res, next) => {
       const receiver = await UserModel.findById(chatId);
       receiver.lastMessageContent = content;
       await receiver.save();
+
+      // we need to emit the socket event
+      const admin = await UserModel.findOne({
+        email: process.env.EXPRESS_ADMIN_EMAIL,
+      });
+      const adminId = admin._id.toString();
+      const userId = receiver._id.toString();
+      const helperId = receiver.helperId.toString();
+
+      if (adminId === req.user._id.toString()) {
+        const helperSocketId = getRecipientSocketId(helperId);
+        if (helperSocketId) {
+          // console.log("helper socket id", helperSocketId);
+          emitSocketEvent(req, helperSocketId, "newMessage", message);
+          // console.log("message sent to helper socket id", helperSocketId);
+        }
+      } else {
+        const adminSocketId = getRecipientSocketId(adminId);
+        if (adminSocketId) {
+          // console.log("admin socket id", adminSocketId);
+          emitSocketEvent(req, adminSocketId, "newMessage", message);
+          // console.log("message sent to admin socket id", adminSocketId);
+        }
+      }
+
+      const userSocketId = getRecipientSocketId(userId);
+      if (userSocketId) {
+        // console.log("user socket id", userSocketId);
+        emitSocketEvent(req, userSocketId, "newMessage", message);
+        // console.log("message sent to user socket id", userSocketId);
+      }
+
       res.status(201).json({
         success: true,
         message: `Chat updated by ${senderId}`,

@@ -21,8 +21,6 @@ const ChatEventEnum = Object.freeze({
   JOIN_CHAT_EVENT: "joinChat",
   // ? when participant gets removed from group, chat gets deleted or leaves a group
   LEAVE_CHAT_EVENT: "leaveChat",
-  // ? when admin updates a group name
-  UPDATE_GROUP_NAME_EVENT: "updateGroupName",
   // ? when new message is received
   MESSAGE_RECEIVED_EVENT: "messageReceived",
   // ? when there is new one on one chat, new group chat or user gets added in the group

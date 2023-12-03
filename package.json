@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "engines": {
+    "node": "16.x"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon index.js",
@@ -11,7 +14,11 @@
     "start": "concurrently \"npm run start:server\" \"npm run start:client\""
   },
   "keywords": [],
-  "author": "",
+  "author": "naveen alla",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Naveenalla3000/chatapp_backend"
+  },
   "license": "ISC",
   "dependencies": {
     "axios": "^1.6.2",

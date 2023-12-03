@@ -13,11 +13,13 @@ const { ErrorMiddleware } = require("./middlewares/ErrorMiddleWare/Error.js");
 const { chatRouter } = require("./routes/ChatRoutes/ChatRouter.js");
 const { adminRouter } = require("./routes/AdminRoutes/AdminRoutes.js");
 
+//middlewares
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
+
 const server = http.createServer(app);
 const io = socketio(server, {
   pingTimeout: parseInt(process.env.EXPRESS_PING_TIMEOUT) || 6000,
@@ -60,4 +62,4 @@ app.use(ErrorMiddleware);
 //socket Initializing
 initializeSocketIO(io);
 
-module.exports = { server };
+module.exports = { server,io };
