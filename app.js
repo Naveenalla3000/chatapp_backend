@@ -45,6 +45,10 @@ app.use(
 // health_test router
 // app.use("/api/v1/test", Approuter);
 
+app.get('/api/v1/test',(req,res,next)=>{
+  res.status(200).json({message:"ok"});
+});
+
 //user routers
 app.use("/api/v1/user", userRouter);
 
