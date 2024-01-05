@@ -16,11 +16,5 @@ const connecDb = async () => {
   console.log(`🍃 MongoDB Connected: ${conn.connection.host} 🚀`);
 } 
 
-try {
-  startServer();
-  connecDb();
-} catch (error) {
-  console.log(error);
-  setTimeout(startServer, 5000);
-  setTimeout(connecDb, 5000);
-}
+startServer();
+connecDb();
