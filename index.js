@@ -8,7 +8,7 @@ dotenv.config({
 });
 
 const startServer = () => {
-  server.listen();
+  server.listen(8000,()=>{console.log("server runing....")});
 };
 
 const connecDb = async () => {
