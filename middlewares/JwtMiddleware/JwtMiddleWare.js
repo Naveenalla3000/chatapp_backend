@@ -23,23 +23,26 @@ const signRefreshToken = (_id) => {
 const refreshTokenOptions = {
   expires: new Date(Date.now() + refreshTokenExpire * 24 * 60 * 60 * 1000),
   maxAge: refreshTokenExpire * 24 * 60 * 60 * 1000,
-  httpOnly: true,
+  httpOnly: false,
   sameSite: "lax",
 };
 const accessTokenOptions = {
   expires: new Date(Date.now() + accessTokenExpire * 60 * 60 * 1000),
   maxAge: accessTokenExpire * 60 * 60 * 1000,
-  httpOnly: true,
+  httpOnly: false,
   sameSite: "lax",
 };
 const setToken = (user, statusCode, res) => {
   const accessToken = signAccessToken(user._id);
   const refreshToken = signRefreshToken(user._id);
-  res.cookie("refresh_token", refreshToken, refreshTokenOptions);
-  res.cookie("access_token", accessToken, accessTokenOptions);
   if (process.env.EXPRESS_NODE_ENV === "production") {
     accessTokenOptions.secure = true;
   }
+   if (process.env.EXPRESS_NODE_ENV === "production") {
+    refreshTokenOptions.secure = true;
+  }
+  res.cookie("refresh_token", refreshToken, refreshTokenOptions);
+  res.cookie("access_token", accessToken, accessTokenOptions);
   res.status(statusCode).json({
     success: true,
     user,
