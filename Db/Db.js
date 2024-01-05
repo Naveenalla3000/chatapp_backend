@@ -8,6 +8,4 @@ const connectDb = async () => {
     setTimeout(connectDb, 5000);
   }
 };
-module.exports = {
-  connectDb,
-};
+module.exports = connectDb;
