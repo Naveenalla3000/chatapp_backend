@@ -8,13 +8,7 @@ dotenv.config({
 });
 
 const startServer = () => {
-  server.listen(process.env.EXPRESS_SERVER_PORT, () => {
-    console.log(
-      "⚙️  Server is running on port: " +
-        process.env.EXPRESS_SERVER_PORT +
-        " 🚀"
-    );
-  });
+  server.listen();
 };
 
 const connecDb = async () => {
