@@ -12,7 +12,7 @@ const { initializeSocketIO } = require("./socket/Socket.js");
 const { ErrorMiddleware } = require("./middlewares/ErrorMiddleWare/Error.js");
 const { chatRouter } = require("./routes/ChatRoutes/ChatRouter.js");
 const { adminRouter } = require("./routes/AdminRoutes/AdminRoutes.js");
-const { Approuter, loggerRoute, unknownRotes } = require("./routes/AppRoute.js");
+// const { Approuter, loggerRoute, unknownRotes } = require("./routes/AppRoute.js");
 
 //middlewares
 app.use(express.urlencoded({ extended: true }));
@@ -40,10 +40,10 @@ app.use(
 );
 
 // logger router
-app.use("/",loggerRoute );
+// app.use("/",loggerRoute );
 
 // health_test router
-app.use("/api/v1/test", Approuter);
+// app.use("/api/v1/test", Approuter);
 
 //user routers
 app.use("/api/v1/user", userRouter);
@@ -55,7 +55,7 @@ app.use("/api/v1/chat", chatRouter);
 app.use("/api/v1/admin", adminRouter);
 
 //unknown routes
-app.all("*", unknownRotes);
+// app.all("*", unknownRotes);
 
 // ErrorHandler
 app.use(ErrorMiddleware);
