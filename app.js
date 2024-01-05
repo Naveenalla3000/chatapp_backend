@@ -3,7 +3,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const http = require("http");
 const app = express();
-const { loggerRoute, Approuter, unknownRotes } = require("./routes/AppRoute");
+
 const { userRouter } = require("./routes/UserRoutes/UserRoutes.js");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
@@ -12,6 +12,7 @@ const { initializeSocketIO } = require("./socket/Socket.js");
 const { ErrorMiddleware } = require("./middlewares/ErrorMiddleWare/Error.js");
 const { chatRouter } = require("./routes/ChatRoutes/ChatRouter.js");
 const { adminRouter } = require("./routes/AdminRoutes/AdminRoutes.js");
+const { Approuter, loggerRoute, unknownRotes } = require("./routes/AppRoute.js");
 
 //middlewares
 app.use(express.urlencoded({ extended: true }));
@@ -39,7 +40,7 @@ app.use(
 );
 
 // logger router
-app.use("/", loggerRoute);
+app.use("/",loggerRoute );
 
 // health_test router
 app.use("/api/v1/test", Approuter);
