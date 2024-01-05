@@ -19,7 +19,7 @@ const startServer = () => {
 
 const connecDb = async () => {
   const conn = await mongoose.connect(process.env.EXPRESS_MONGO_URI);
-  console.log(🍃 MongoDB Connected: ${conn.connection.host} 🚀);
+  console.log(`🍃 MongoDB Connected: ${conn.connection.host} 🚀`);
 } 
 
 try {
